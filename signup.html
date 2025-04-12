@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #89f7fe, #66a6ff);
+            margin: 0;
+            padding: 0;
+        }
+
+        .signup-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4A00E0;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4A00E0;
+            border: none;
+            color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #8E2DE2;
+        }
+
+        .nav {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #4A00E0;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+
+        .nav a:hover {
+            color: #8E2DE2;
+        }
+    </style>
+</head>
+<style>
+    .signout {
+      display: none !important;
+    }
+  </style>
+  
+  
+
+<link rel="stylesheet" href="style.css">
+
+<body>
+  
+    
+    <div class="header">
+        <div class="logo">
+            <img src="images/logo.png" alt="Subscription & Bill Tracker Logo">
+        </div>
+        <div class="title">
+            Dashboard
+        </div>
+    </div>
+    
+     
+    
+    
+    <div class="signup-container">
+        <h1>Create Account</h1>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <input type="password" id="cpassword" placeholder="Confirm Password">
+        <button onclick="signup()">Sign Up</button>
+        <div class="nav">
+            <a href="index.html">Already have an account? Login</a>
+        </div>
+    </div>
+
+    <script>
+        function signup() {
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            let cpassword = document.getElementById('cpassword').value;
+    
+            if (name === "" || email === "" || password === "" || cpassword === "") {
+                alert("Please fill all fields");
+            } else if (password !== cpassword) {
+                alert("Passwords do not match");
+            } else {
+                alert("Sign Up Successful! Please Login Now.");
+                window.location.href = "login.html";  // Ab login page pe le jaayega
+            }
+        }
+    </script>
+    
+</body>
+
+</html>

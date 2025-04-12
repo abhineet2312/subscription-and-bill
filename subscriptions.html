@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subscriptions</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #89f7fe, #66a6ff);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4A00E0;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            width: 50%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .subscriptions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #4A00E0;
+            margin-bottom: 10px;
+        }
+
+        .btn-group button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #4A00E0;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        .btn-group button:hover {
+            opacity: 0.8;
+        }
+
+        .add-btn, .back-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4A00E0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .add-btn:hover, .back-btn:hover {
+            opacity: 0.9;
+        }
+
+        .signout {
+            text-align: right;
+            padding: 15px 20px;
+        }
+
+        .signout a {
+            text-decoration: none;
+            background: #ff0000;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .signout a:hover {
+            background: #cc0000;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+        }
+
+        .logo img {
+            width: 150px;
+        }
+
+        /* Modal Styling for Add Subscription Form */
+        #addSubscriptionModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #addSubscriptionForm {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+        }
+
+        #addSubscriptionForm input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #addSubscriptionForm button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4A00E0;
+            color: white;
+            cursor: pointer;
+        }
+
+        #addSubscriptionForm button:hover {
+            opacity: 0.9;
+        }
+
+        #addSubscriptionForm button[type="button"] {
+            background-color: #ff4d4d;
+        }
+
+        #addSubscriptionForm button[type="button"]:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="signout">
+        <a href="login.html">Sign Out</a>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <img src="images/logo.png" alt="Subscription & Bill Tracker Logo">
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Manage Subscriptions</h1>
+
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search Subscription..." onkeyup="searchSub()">
+        </div>
+
+        <button class="add-btn" onclick="showAddForm()">Add Subscription</button>
+
+        <div class="subscriptions" id="subs">
+            <!-- Data Will be Added Dynamically -->
+        </div>
+
+        <button class="back-btn" onclick="window.location.href='home.html'">Back to Dashboard</button>
+
+    </div>
+
+    <!-- Add Subscription Form Modal -->
+    <div id="addSubscriptionModal">
+        <form id="addSubscriptionForm">
+            <label for="name">Subscription Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="price">Price (₹):</label>
+            <input type="number" id="price" required>
+
+            <label for="duration">Duration (Monthly/Yearly):</label>
+            <input type="text" id="duration" required>
+
+            <button type="submit">Add Subscription</button>
+            <button type="button" onclick="closeAddForm()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        let subscriptions = [];
+
+        async function getSubs() {
+            const res = await fetch("http://localhost:5000/subscriptions");
+            subscriptions = await res.json();
+            displaySubs();
+        }
+
+        function showAddForm() {
+            document.getElementById("addSubscriptionModal").style.display = "flex";
+        }
+
+        function closeAddForm() {
+            document.getElementById("addSubscriptionModal").style.display = "none";
+        }
+
+        document.getElementById("addSubscriptionForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const price = document.getElementById("price").value;
+            const duration = document.getElementById("duration").value;
+
+            const data = { name, price, duration };
+
+            try {
+                const response = await fetch("http://localhost:3000/api/subscriptions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                alert(result.message);
+                this.reset();
+                closeAddForm(); // Close the form
+                getSubs(); // Refresh list
+            } catch (error) {
+                alert("❌ Error adding subscription");
+                console.error(error);
+            }
+        });
+
+        async function deleteSub(index) {
+            if (confirm("Are you sure you want to delete?")) {
+                await fetch(`http://localhost:5000/subscriptions/${subscriptions[index]._id}`, {
+                    method: 'DELETE'
+                });
+                getSubs();
+            }
+        }
+
+        async function editSub(index) {
+            let sub = subscriptions[index];
+            let name = prompt("Edit Name:", sub.name);
+            let price = prompt("Edit Price:", sub.price);
+            let duration = prompt("Edit Duration:", sub.duration);
+
+            if (name && price && duration) {
+                await fetch(`http://localhost:5000/subscriptions/${sub._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, duration })
+                });
+                getSubs();
+            }
+        }
+
+        function displaySubs() {
+            let subsDiv = document.getElementById('subs');
+            subsDiv.innerHTML = "";
+
+            subscriptions.forEach((sub, index) => {
+                subsDiv.innerHTML += `
+                <div class="card">
+                    <h3>${sub.name}</h3>
+                    <p>Price: ₹${sub.price}/${sub.duration}</p>
+                    <div class="btn-group">
+                        <button class="edit-btn" onclick="editSub(${index})">Edit</button>
+                        <button class="delete-btn" onclick="deleteSub(${index})">Delete</button>
+                    </div>
+                </div>
+                `;
+            });
+        }
+
+        function searchSub() {
+            let input = document.getElementById('search').value.toUpperCase();
+            let cards = document.getElementById('subs').getElementsByClassName('card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let h3 = cards[i].getElementsByTagName('h3')[0];
+                if (h3.innerHTML.toUpperCase().indexOf(input) > -1) {
+                    cards[i].style.display = "block";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+        getSubs();
+    </script>
+
+</body>
+</html>
